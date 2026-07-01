@@ -49,7 +49,7 @@ function Agenda({ state, dispatch }) {
             <div className={`slot ${s.done ? "done" : ""} ${s.id === nextId ? "now" : ""}`} key={s.id}>
               <div className="t">{s.time}</div>
               <div className="task" onClick={() => dispatch({ type: "TOGGLE_TASK", id: s.id })}>
-                <span className="box" /><span>{esc(s.task)}</span>
+                <span className="box" /><span>{s.rid && <i className="rec" title="rotina">↻</i>}{esc(s.task)}</span>
               </div>
               <div className="row-actions">
                 <button className="rm edit" title="Editar" onClick={() => dispatch({ type: "SET_EDITING", id: s.id })}>✎</button>
@@ -262,15 +262,13 @@ export default function DiaView({ state, dispatch, now, liveSeconds }) {
 
   return (
     <div>
-      <div className="grid">
+      <div className="cards">
         <Agenda state={state} dispatch={dispatch} />
-        <div className="stack">
-          <Agua state={state} dispatch={dispatch} />
-          <Alimentacao state={state} dispatch={dispatch} />
-          <Treino state={state} dispatch={dispatch} now={now} />
-          <Peso state={state} dispatch={dispatch} />
-          <Trabalho state={state} dispatch={dispatch} liveSeconds={liveSeconds} />
-        </div>
+        <Agua state={state} dispatch={dispatch} />
+        <Alimentacao state={state} dispatch={dispatch} />
+        <Treino state={state} dispatch={dispatch} now={now} />
+        <Peso state={state} dispatch={dispatch} />
+        <Trabalho state={state} dispatch={dispatch} liveSeconds={liveSeconds} />
       </div>
       <div className="resumo">
         <div className="stat"><div className="k">Tarefas</div><div className="v">{feitas}<small>/{day.agenda.length}</small></div></div>

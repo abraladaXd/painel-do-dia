@@ -15,7 +15,12 @@ body{min-height:100vh;
   background-size:44px 44px;background-position:center;background-attachment:fixed}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;
   background:radial-gradient(circle at 20% 0%,rgba(129,140,248,.10),transparent 55%),radial-gradient(circle at 100% 100%,rgba(34,211,238,.06),transparent 50%)}
-.wrap{max-width:1180px;margin:0 auto;padding:26px 20px 80px;position:relative;z-index:1}
+.wrap{max-width:1180px;margin:0 auto;
+  padding:clamp(16px,4vw,28px) 20px 80px;
+  padding-left:max(clamp(14px,4vw,20px),env(safe-area-inset-left));
+  padding-right:max(clamp(14px,4vw,20px),env(safe-area-inset-right));
+  padding-bottom:max(80px,calc(60px + env(safe-area-inset-bottom)));
+  position:relative;z-index:1}
 button{font-family:inherit}
 input,select,textarea{font-family:var(--body);background:var(--surface-2);border:1px solid var(--line);color:var(--text);border-radius:var(--r-sm);padding:9px 11px;font-size:14px;outline:none;transition:border .15s}
 input:focus,select:focus,textarea:focus{border-color:var(--plan)}
@@ -87,14 +92,17 @@ h1.title span{color:var(--muted)}
 .focus.calm .focus-count{display:none}
 @keyframes pulse{50%{opacity:.45}}
 
-.grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;align-items:start}
-@media(max-width:860px){.grid{grid-template-columns:1fr}}
+/* todos os cards fluem num masonry que se encaixa por altura — sem vazios */
+.cards{column-gap:18px}
+.cards>.card{break-inside:avoid;margin-bottom:18px}
+@media(min-width:1024px){.cards{column-count:3}}
+@media(min-width:660px) and (max-width:1023px){.cards{column-count:2}}
 .card{background:linear-gradient(180deg,var(--surface),#11161f);border:1px solid var(--line);border-radius:var(--r);padding:20px}
-.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+@media(max-width:420px){.card{padding:16px}}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
 .card-head h2{font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
 .dot{width:8px;height:8px;border-radius:99px;flex:none}
-.card-head .meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.stack{display:flex;flex-direction:column;gap:18px}
+.card-head .meta{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
 
 .slot{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px dashed var(--line);position:relative}
 .slot:last-child{border-bottom:none}
@@ -205,6 +213,11 @@ h1.title span{color:var(--muted)}
 .stat .v{font-family:var(--mono);font-weight:700;font-size:20px}.stat .v small{font-size:12px;color:var(--muted);font-weight:400}
 
 .week table{width:100%;border-collapse:collapse;font-size:13.5px}
+@media(max-width:600px){
+  .week{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px}
+  .week table{min-width:520px}
+  .week th,.week td{padding:10px 6px}
+}
 .week th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
 .week td{padding:12px 8px;border-bottom:1px dashed var(--line);font-family:var(--mono)}
 .week tr:hover td{background:var(--surface-2)}
@@ -214,8 +227,27 @@ h1.title span{color:var(--muted)}
 .wbar i{display:block;height:100%}
 .tick{color:var(--treino)}.cross{color:var(--muted-2)}
 
+.rec{font-style:normal;color:var(--plan);font-size:12px;margin-right:5px;opacity:.85}
+
 .cfg-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:620px){.cfg-grid{grid-template-columns:1fr}}
+
+/* editor de rotinas */
+.rotinas-block{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.rotinas-head{display:flex;flex-direction:column;gap:3px;margin-bottom:12px}
+.rotinas-head label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rotinas-head .rotinas-sub{font-size:12.5px;color:var(--muted-2)}
+.rotinas{display:flex;flex-direction:column;gap:10px}
+.rot-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px}
+.rot-row .txt{min-width:0}
+.rot-days{grid-column:1/-1;display:flex;gap:4px;flex-wrap:wrap}
+.rot-days button{width:30px;height:30px;border-radius:7px;border:1px solid var(--line);background:var(--surface);
+  color:var(--muted);font-family:var(--mono);font-size:12px;cursor:pointer;transition:.12s}
+.rot-days button:hover{border-color:var(--plan)}
+.rot-days button.on{background:var(--plan);border-color:var(--plan);color:var(--ink);font-weight:700}
+.rotinas>.btn.ghost{align-self:flex-start}
+@media(max-width:620px){.cfg-actions{flex-wrap:wrap}.cfg-actions .btn{flex:1}}
 .field{display:flex;flex-direction:column;gap:7px}
 .field label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .field textarea{resize:vertical;min-height:70px}

@@ -5,6 +5,13 @@ export const metadata = {
   description: "Organização diária: obrigações, água, alimentação, treino e trabalho.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0A0D13",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-BR">

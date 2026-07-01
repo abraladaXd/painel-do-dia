@@ -58,6 +58,25 @@ git branch -M main
 git push -u origin main
 ```
 
-## Deploy
+## Deploy no Firebase Hosting
+
+O app é 100% client-side, então usamos **export estático** do Next (`output: "export"` → pasta `out/`) servido pelo Firebase Hosting — sem Cloud Functions, dentro do plano gratuito.
+
+Já vêm configurados `firebase.json` (público = `out/`) e `.firebaserc` (projeto `megabrain-51939`).
+
+```bash
+# 1. Gerar o build estático (lê as chaves de .env.local e embute no bundle)
+npm run build
+
+# 2. Publicar (usa o Firebase CLI via npx, sem instalar global)
+npx firebase-tools login          # só na primeira vez
+npx firebase-tools deploy --only hosting
+```
+
+Depois do primeiro deploy, adicione o domínio `*.web.app` / `*.firebaseapp.com` (e qualquer domínio custom) em **Authentication → Settings → Authorized domains**, senão o login Google via popup é bloqueado.
+
+> As variáveis `NEXT_PUBLIC_FIREBASE_*` são embutidas no bundle **no momento do build** — sempre rode `npm run build` antes de `deploy`.
+
+### Deploy pela Vercel (alternativa)
 
 Vercel detecta Next.js automaticamente. Configure as mesmas variáveis `NEXT_PUBLIC_FIREBASE_*` no painel do projeto e adicione o domínio do deploy nos Authorized domains do Firebase.

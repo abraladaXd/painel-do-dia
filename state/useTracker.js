@@ -2,7 +2,7 @@
 import { useReducer, useEffect, useRef, useState, useCallback } from "react";
 import { reducer, initialState } from "@/state/reducer";
 import { initBackend } from "@/lib/backend";
-import { blankDay, ensureIds, SEED, DEFAULTS } from "@/lib/model";
+import { blankDay, ensureIds, seedAgenda, DEFAULTS } from "@/lib/model";
 import { todayKey } from "@/lib/date";
 
 export function useTracker() {
@@ -27,13 +27,13 @@ export function useTracker() {
       const b = await initBackend();
       if (!alive) return;
       backendRef.current = b;
-      const cfg = (await b.getConfig()) || { ...DEFAULTS };
+      const cfg = { ...DEFAULTS, ...((await b.getConfig()) || {}) };
       let day = await b.getDay(todayKey());
       if (!day) {
         day = blankDay();
-        day.agenda = structuredClone(SEED);
+        day.agenda = seedAgenda(todayKey(), cfg.rotinas);
       }
-      dispatch({ type: "INIT", mode: b.mode, cfg: { ...DEFAULTS, ...cfg }, dayKey: todayKey(), day: ensureIds(day) });
+      dispatch({ type: "INIT", mode: b.mode, cfg, dayKey: todayKey(), day: ensureIds(day) });
     })();
     return () => { alive = false; };
   }, []);
@@ -97,7 +97,8 @@ export function useTracker() {
       let nd = await b.getDay(key);
       if (!nd) {
         nd = blankDay();
-        if (key === todayKey()) nd.agenda = structuredClone(SEED);
+        // semeia rotinas em dias de hoje em diante (não fabrica tarefas no passado)
+        if (key >= todayKey()) nd.agenda = seedAgenda(key, s.cfg.rotinas);
       }
       dispatch({ type: "LOAD_DAY", dayKey: key, day: ensureIds(nd) });
     }

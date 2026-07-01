@@ -1,5 +1,5 @@
 import { genId, blankDay, ensureIds, DEFAULTS } from "@/lib/model";
-import { todayKey } from "@/lib/date";
+import { todayKey, parseKey } from "@/lib/date";
 
 export const initialState = () => ({
   ready: false,
@@ -65,6 +65,15 @@ export function reducer(state, action) {
     }
     case "SET_EDITING":
       return { ...state, editing: action.id };
+    case "APPLY_ROTINAS": {
+      const wd = parseKey(state.dayKey).getDay();
+      const have = new Set(day.agenda.map((t) => t.rid).filter(Boolean));
+      const toAdd = (cfg.rotinas || [])
+        .filter((r) => Array.isArray(r.dias) && r.dias.includes(wd) && !have.has(r.id))
+        .map((r) => ({ id: genId(), rid: r.id, time: r.time, task: r.task, done: false }));
+      if (!toAdd.length) return { ...state, toast: toast("Rotinas já aplicadas") };
+      return commit(state, `${toAdd.length} rotina(s) adicionada(s)`, { ...day, agenda: [...day.agenda, ...toAdd] });
+    }
 
     // ---- agua ----
     case "AGUA": {
