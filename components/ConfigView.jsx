@@ -3,8 +3,99 @@ import { useState } from "react";
 import { firebaseEnabled } from "@/lib/firebase";
 import { genId } from "@/lib/model";
 
-const DIAS = ["D", "S", "T", "Q", "Q", "S", "S"]; // 0=Dom ... 6=Sáb
+const DIAS = ["D", "S", "T", "Q", "Q", "S", "S"];        // toggles curtos (0=Dom ... 6=Sáb)
+const DIAS_FULL = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+
+// ---- quadro semanal de rotinas (colunas por dia; bloco clicável abre editor) ----
+function RotinasBoard({ rotinas, setRotinas, refeicoesList }) {
+  const [draft, setDraft] = useState(null);
+  const todayWd = new Date().getDay();
+
+  const openNew = (wd) => setDraft({ idx: null, id: genId(), time: "07:00", task: "", dias: [wd], link: "" });
+  const openEdit = (idx) => setDraft({ idx, ...rotinas[idx], dias: [...rotinas[idx].dias] });
+  const close = () => setDraft(null);
+  const patch = (p) => setDraft((d) => ({ ...d, ...p }));
+  const toggleDia = (wd) => setDraft((d) => ({
+    ...d, dias: d.dias.includes(wd) ? d.dias.filter((x) => x !== wd) : [...d.dias, wd].sort(),
+  }));
+
+  const saveDraft = () => {
+    const task = (draft.task || "").trim();
+    if (!task) { close(); return; }
+    const r = { id: draft.id, time: draft.time || "07:00", task, dias: draft.dias.length ? draft.dias : [...ALL_DAYS], link: draft.link || "" };
+    setRotinas((rs) => (draft.idx == null ? [...rs, r] : rs.map((x, j) => (j === draft.idx ? r : x))));
+    close();
+  };
+  const delDraft = () => {
+    if (draft.idx != null) setRotinas((rs) => rs.filter((_, j) => j !== draft.idx));
+    close();
+  };
+
+  // rotinas de cada dia, ordenadas por horário (guardando o índice original p/ editar)
+  const byDay = ALL_DAYS.map((wd) =>
+    rotinas.map((r, idx) => ({ r, idx }))
+      .filter(({ r }) => r.dias.includes(wd))
+      .sort((a, b) => a.r.time.localeCompare(b.r.time))
+  );
+
+  return (
+    <>
+      <div className="rboard-scroll">
+        <div className="rboard">
+          {ALL_DAYS.map((wd) => (
+            <div className="rcol" key={wd}>
+              <div className={`rcol-head ${wd === todayWd ? "today" : ""}`}>
+                <span>{DIAS_FULL[wd]}</span>
+                <button className="rcol-add" title="Nova rotina neste dia" onClick={() => openNew(wd)}>+</button>
+              </div>
+              {byDay[wd].length === 0 && <div className="rcol-empty">—</div>}
+              {byDay[wd].map(({ r, idx }) => (
+                <button key={r.id} className={`rblock ${r.link ? "linked" : ""}`} onClick={() => openEdit(idx)}>
+                  <span className="bt">{r.time}</span>
+                  <span className="bk">{r.task}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {draft && (
+        <div className="redit-backdrop" onClick={close}>
+          <div className="redit" onClick={(e) => e.stopPropagation()}>
+            <h3>{draft.idx == null ? "Nova rotina" : "Editar rotina"}</h3>
+            <div className="redit-row">
+              <input type="time" value={draft.time} onChange={(e) => patch({ time: e.target.value })} />
+              <input type="text" className="txt" autoFocus placeholder="tarefa que se repete" value={draft.task}
+                onChange={(e) => patch({ task: e.target.value })}
+                onKeyDown={(e) => { if (e.key === "Enter") saveDraft(); if (e.key === "Escape") close(); }} />
+            </div>
+            <label className="redit-lab">Dias da semana</label>
+            <div className="rot-days">
+              {DIAS.map((lab, wd) => (
+                <button type="button" key={wd} className={draft.dias.includes(wd) ? "on" : ""} onClick={() => toggleDia(wd)}>{lab}</button>
+              ))}
+            </div>
+            <label className="redit-lab">Vincular a um módulo (marcar reflete nos dois)</label>
+            <select className="rot-link" value={draft.link || ""} onChange={(e) => patch({ link: e.target.value })}>
+              <option value="">sem vínculo</option>
+              <option value="treino">↔ Treino</option>
+              {refeicoesList.map((m) => <option key={m} value={"refeicao:" + m}>↔ {m}</option>)}
+            </select>
+            <div className="redit-actions">
+              {draft.idx != null ? <button className="btn ghost del" onClick={delDraft}>Excluir</button> : <span />}
+              <div className="redit-ok">
+                <button className="btn ghost" onClick={close}>Cancelar</button>
+                <button className="btn" onClick={saveDraft}>Salvar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function ConfigView({ state, dispatch }) {
   const { cfg } = state;
@@ -17,15 +108,6 @@ export default function ConfigView({ state, dispatch }) {
     (cfg.rotinas || []).map((r) => ({ ...r, dias: [...(r.dias || ALL_DAYS)] }))
   );
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-
-  const setRot = (i, patch) => setRotinas((rs) => rs.map((r, j) => (j === i ? { ...r, ...patch } : r)));
-  const toggleDia = (i, wd) => setRotinas((rs) => rs.map((r, j) => {
-    if (j !== i) return r;
-    const dias = r.dias.includes(wd) ? r.dias.filter((d) => d !== wd) : [...r.dias, wd].sort();
-    return { ...r, dias };
-  }));
-  const addRot = () => setRotinas((rs) => [...rs, { id: genId(), time: "09:00", task: "", dias: [...ALL_DAYS], link: "" }]);
-  const delRot = (i) => setRotinas((rs) => rs.filter((_, j) => j !== i));
 
   // refeições atuais (do próprio form) p/ oferecer como vínculo
   const refeicoesList = form.refeicoes.split("\n").map((s) => s.trim()).filter(Boolean);
@@ -64,32 +146,13 @@ export default function ConfigView({ state, dispatch }) {
 
       <div className="rotinas-block">
         <div className="rotinas-head">
-          <label>Rotinas — tarefas que se repetem</label>
-          <span className="rotinas-sub">aparecem sozinhas em cada novo dia, nos dias marcados</span>
+          <label>Rotinas — sua semana</label>
+          <span className="rotinas-sub">cada dia mostra suas rotinas em ordem de horário · toque num bloco para editar · use + para adicionar</span>
         </div>
-        <div className="rotinas">
-          {rotinas.length === 0 && <div className="empty">Nenhuma rotina. Adicione tarefas que se repetem (ex.: “Tomar remédio 08:00”).</div>}
-          {rotinas.map((r, i) => (
-            <div className="rot-row" key={r.id}>
-              <input type="time" value={r.time} onChange={(e) => setRot(i, { time: e.target.value })} />
-              <input type="text" className="txt" placeholder="tarefa que se repete" value={r.task} onChange={(e) => setRot(i, { task: e.target.value })} />
-              <button className="mini" title="Remover rotina" onClick={() => delRot(i)}>✕</button>
-              <div className="rot-controls">
-                <div className="rot-days">
-                  {DIAS.map((lab, wd) => (
-                    <button type="button" key={wd} className={r.dias.includes(wd) ? "on" : ""} onClick={() => toggleDia(i, wd)}>{lab}</button>
-                  ))}
-                </div>
-                <select className="rot-link" title="Vincular a um módulo" value={r.link || ""} onChange={(e) => setRot(i, { link: e.target.value })}>
-                  <option value="">sem vínculo</option>
-                  <option value="treino">↔ Treino</option>
-                  {refeicoesList.map((m) => <option key={m} value={"refeicao:" + m}>↔ {m}</option>)}
-                </select>
-              </div>
-            </div>
-          ))}
-          <button className="btn ghost" onClick={addRot}>+ rotina</button>
-        </div>
+        {rotinas.length === 0 && (
+          <div className="empty">Nenhuma rotina ainda. Use o + em um dia para adicionar uma tarefa que se repete.</div>
+        )}
+        <RotinasBoard rotinas={rotinas} setRotinas={setRotinas} refeicoesList={refeicoesList} />
       </div>
 
       <div className="cfg-actions">

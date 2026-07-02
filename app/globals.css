@@ -258,18 +258,47 @@ h1.title span{color:var(--muted)}
 .rotinas-head{display:flex;flex-direction:column;gap:3px;margin-bottom:12px}
 .rotinas-head label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .rotinas-head .rotinas-sub{font-size:12.5px;color:var(--muted-2)}
-.rotinas{display:flex;flex-direction:column;gap:10px}
-.rot-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;
-  background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px}
-.rot-row .txt{min-width:0}
-.rot-controls{grid-column:1/-1;display:flex;gap:10px 14px;flex-wrap:wrap;align-items:center;justify-content:space-between}
 .rot-link{padding:6px 9px;font-size:12.5px;max-width:100%}
 .rot-days{display:flex;gap:4px;flex-wrap:wrap}
 .rot-days button{width:30px;height:30px;border-radius:7px;border:1px solid var(--line);background:var(--surface);
   color:var(--muted);font-family:var(--mono);font-size:12px;cursor:pointer;transition:.12s}
 .rot-days button:hover{border-color:var(--plan)}
 .rot-days button.on{background:var(--plan);border-color:var(--plan);color:var(--ink);font-weight:700}
-.rotinas>.btn.ghost{align-self:flex-start}
+
+/* quadro semanal de rotinas (colunas por dia) */
+.rboard-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px;padding-bottom:4px}
+.rboard{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;min-width:840px}
+.rcol{display:flex;flex-direction:column;gap:7px;min-width:0}
+.rcol-head{display:flex;align-items:center;justify-content:space-between;gap:6px;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  padding-bottom:7px;border-bottom:1px solid var(--line)}
+.rcol-head.today{color:var(--agua)}
+.rcol-add{width:20px;height:20px;flex:none;border-radius:6px;border:1px solid var(--line);background:var(--surface-2);
+  color:var(--muted);font-size:14px;line-height:1;cursor:pointer;transition:.12s}
+.rcol-add:hover{border-color:var(--plan);color:var(--plan)}
+.rcol-empty{color:var(--muted-2);font-family:var(--mono);font-size:12px;text-align:center;padding:6px 0}
+.rblock{display:flex;flex-direction:column;gap:2px;text-align:left;width:100%;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 9px;cursor:pointer;transition:.12s}
+.rblock:hover{border-color:var(--plan);transform:translateY(-1px)}
+.rblock .bt{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.rblock .bk{font-size:12.5px;color:var(--text);line-height:1.25;word-break:break-word}
+.rblock.linked{border-left:3px solid var(--plan)}
+
+/* modal de edição de rotina */
+.redit-backdrop{position:fixed;inset:0;z-index:60;background:rgba(6,9,14,.6);backdrop-filter:blur(2px);
+  display:grid;place-items:center;padding:20px}
+.redit{background:linear-gradient(180deg,var(--surface),#11161f);border:1px solid var(--line);border-radius:var(--r);
+  padding:22px;width:100%;max-width:390px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.redit h3{font-family:var(--disp);font-weight:700;font-size:17px;margin-bottom:16px}
+.redit-row{display:flex;gap:8px;margin-bottom:16px}
+.redit-row .txt{flex:1;min-width:0}
+.redit-lab{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.redit .rot-days{margin-bottom:16px}
+.redit select.rot-link{width:100%}
+.redit-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:20px}
+.redit-ok{display:flex;gap:8px}
+.btn.del{color:var(--erase)}
+.btn.del:hover{border-color:var(--erase);color:var(--erase);filter:none}
 @media(max-width:620px){.cfg-actions{flex-wrap:wrap}.cfg-actions .btn{flex:1}}
 .field{display:flex;flex-direction:column;gap:7px}
 .field label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
