@@ -20,6 +20,27 @@ export const initialState = () => ({
 let seq = 0;
 const toast = (msg, undoable = false) => ({ msg, seq: ++seq, undoable });
 
+// --- integração rotina↔módulos ---
+// marcar/desmarcar uma tarefa vinculada reflete no módulo correspondente
+function applyTaskLink(day, link, on) {
+  if (!link) return day;
+  if (link === "treino") return { ...day, treino: { ...day.treino, feito: on } };
+  if (link.startsWith("refeicao:")) {
+    const name = link.slice("refeicao:".length);
+    return { ...day, refeicoes: { ...day.refeicoes, [name]: on } };
+  }
+  return day;
+}
+// mexer no módulo reflete de volta nas tarefas vinculadas a ele
+function markLinkedTasks(day, link, done) {
+  let changed = false;
+  const agenda = day.agenda.map((t) => {
+    if (t.link === link && t.done !== done) { changed = true; return { ...t, done }; }
+    return t;
+  });
+  return changed ? { ...day, agenda } : day;
+}
+
 // aplica uma mudanca no `day` empurrando o estado anterior pro historico
 function commit(state, label, day) {
   return {
@@ -55,8 +76,10 @@ export function reducer(state, action) {
     case "TOGGLE_TASK": {
       const it = day.agenda.find((t) => t.id === action.id);
       if (!it) return state;
-      const d = { ...day, agenda: day.agenda.map((t) => t.id === action.id ? { ...t, done: !t.done } : t) };
-      return commit(state, it.done ? "tarefa reaberta" : "tarefa concluída", d);
+      const on = !it.done;
+      let d = { ...day, agenda: day.agenda.map((t) => t.id === action.id ? { ...t, done: on } : t) };
+      d = applyTaskLink(d, it.link, on); // reflete no módulo vinculado (treino/refeição)
+      return commit(state, on ? "tarefa concluída" : "tarefa reaberta", d);
     }
     case "EDIT_TASK": {
       if (!action.task.trim()) return { ...state, editing: null };
@@ -74,7 +97,7 @@ export function reducer(state, action) {
       const have = new Set(day.agenda.map((t) => t.rid).filter(Boolean));
       const toAdd = (cfg.rotinas || [])
         .filter((r) => Array.isArray(r.dias) && r.dias.includes(wd) && !have.has(r.id))
-        .map((r) => ({ id: genId(), rid: r.id, time: r.time, task: r.task, done: false }));
+        .map((r) => ({ id: genId(), rid: r.id, time: r.time, task: r.task, done: false, link: r.link || "" }));
       if (!toAdd.length) return { ...state, toast: toast("Rotinas já aplicadas") };
       return commit(state, `${toAdd.length} rotina(s) adicionada(s)`, { ...day, agenda: [...day.agenda, ...toAdd] });
     }
@@ -89,20 +112,26 @@ export function reducer(state, action) {
     // ---- refeicoes ----
     case "MEAL": {
       const on = !day.refeicoes[action.name];
-      return commit(state, on ? "refeição marcada" : "refeição desmarcada",
-        { ...day, refeicoes: { ...day.refeicoes, [action.name]: on } });
+      let d = { ...day, refeicoes: { ...day.refeicoes, [action.name]: on } };
+      d = markLinkedTasks(d, "refeicao:" + action.name, on); // reflete na tarefa vinculada
+      return commit(state, on ? "refeição marcada" : "refeição desmarcada", d);
     }
 
     // ---- treino ----
-    case "TREINO_TOGGLE":
-      return commit(state, day.treino.feito ? "treino desmarcado" : "treino marcado",
-        { ...day, treino: { ...day.treino, feito: !day.treino.feito } });
+    case "TREINO_TOGGLE": {
+      const feito = !day.treino.feito;
+      let d = { ...day, treino: { ...day.treino, feito } };
+      d = markLinkedTasks(d, "treino", feito); // reflete nas tarefas de treino
+      return commit(state, feito ? "treino marcado" : "treino desmarcado", d);
+    }
     case "TREINO_SET":
       return commit(state, "treino atualizado",
         { ...day, treino: { ...day.treino, [action.field]: action.value } });
-    case "TREINO_START":
-      return commit(state, "treino iniciado",
-        { ...day, treino: { ...day.treino, feito: true, inicio: action.iso, fim: null } });
+    case "TREINO_START": {
+      let d = { ...day, treino: { ...day.treino, feito: true, inicio: action.iso, fim: null } };
+      d = markLinkedTasks(d, "treino", true);
+      return commit(state, "treino iniciado", d);
+    }
     case "TREINO_END":
       return commit(state, "treino finalizado",
         { ...day, treino: { ...day.treino, fim: action.iso } });

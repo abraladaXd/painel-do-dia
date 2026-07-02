@@ -15,8 +15,8 @@ body{min-height:100vh;
   background-size:44px 44px;background-position:center;background-attachment:fixed}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;
   background:radial-gradient(circle at 20% 0%,rgba(129,140,248,.10),transparent 55%),radial-gradient(circle at 100% 100%,rgba(34,211,238,.06),transparent 50%)}
-.wrap{max-width:1180px;margin:0 auto;
-  padding:clamp(16px,4vw,28px) 20px 80px;
+.wrap{max-width:1640px;margin:0 auto;
+  padding:clamp(16px,4vw,28px) clamp(18px,3vw,40px) 80px;
   padding-left:max(clamp(14px,4vw,20px),env(safe-area-inset-left));
   padding-right:max(clamp(14px,4vw,20px),env(safe-area-inset-right));
   padding-bottom:max(80px,calc(60px + env(safe-area-inset-bottom)));
@@ -116,6 +116,7 @@ h1.title span{color:var(--muted)}
 .cards{column-gap:18px}
 .cards>.card{break-inside:avoid;margin-bottom:18px}
 @media(min-width:1024px){.cards{column-count:3}}
+@media(min-width:1500px){.cards{column-count:4}}
 @media(min-width:660px) and (max-width:1023px){.cards{column-count:2}}
 .card{background:linear-gradient(180deg,var(--surface),#11161f);border:1px solid var(--line);border-radius:var(--r);padding:20px}
 @media(max-width:420px){.card{padding:16px}}
@@ -261,7 +262,9 @@ h1.title span{color:var(--muted)}
 .rot-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;
   background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px}
 .rot-row .txt{min-width:0}
-.rot-days{grid-column:1/-1;display:flex;gap:4px;flex-wrap:wrap}
+.rot-controls{grid-column:1/-1;display:flex;gap:10px 14px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.rot-link{padding:6px 9px;font-size:12.5px;max-width:100%}
+.rot-days{display:flex;gap:4px;flex-wrap:wrap}
 .rot-days button{width:30px;height:30px;border-radius:7px;border:1px solid var(--line);background:var(--surface);
   color:var(--muted);font-family:var(--mono);font-size:12px;cursor:pointer;transition:.12s}
 .rot-days button:hover{border-color:var(--plan)}

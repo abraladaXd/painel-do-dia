@@ -24,8 +24,11 @@ export default function ConfigView({ state, dispatch }) {
     const dias = r.dias.includes(wd) ? r.dias.filter((d) => d !== wd) : [...r.dias, wd].sort();
     return { ...r, dias };
   }));
-  const addRot = () => setRotinas((rs) => [...rs, { id: genId(), time: "09:00", task: "", dias: [...ALL_DAYS] }]);
+  const addRot = () => setRotinas((rs) => [...rs, { id: genId(), time: "09:00", task: "", dias: [...ALL_DAYS], link: "" }]);
   const delRot = (i) => setRotinas((rs) => rs.filter((_, j) => j !== i));
+
+  // refeições atuais (do próprio form) p/ oferecer como vínculo
+  const refeicoesList = form.refeicoes.split("\n").map((s) => s.trim()).filter(Boolean);
 
   const buildCfg = () => ({
     ...cfg,
@@ -38,7 +41,7 @@ export default function ConfigView({ state, dispatch }) {
     refeicoes: form.refeicoes.split("\n").map((s) => s.trim()).filter(Boolean),
     tiposTreino: form.tiposTreino.split("\n").map((s) => s.trim()).filter(Boolean),
     rotinas: rotinas
-      .map((r) => ({ id: r.id, time: r.time || "09:00", task: r.task.trim(), dias: r.dias.length ? r.dias : [...ALL_DAYS] }))
+      .map((r) => ({ id: r.id, time: r.time || "09:00", task: r.task.trim(), dias: r.dias.length ? r.dias : [...ALL_DAYS], link: r.link || "" }))
       .filter((r) => r.task),
   });
 
@@ -71,10 +74,17 @@ export default function ConfigView({ state, dispatch }) {
               <input type="time" value={r.time} onChange={(e) => setRot(i, { time: e.target.value })} />
               <input type="text" className="txt" placeholder="tarefa que se repete" value={r.task} onChange={(e) => setRot(i, { task: e.target.value })} />
               <button className="mini" title="Remover rotina" onClick={() => delRot(i)}>✕</button>
-              <div className="rot-days">
-                {DIAS.map((lab, wd) => (
-                  <button type="button" key={wd} className={r.dias.includes(wd) ? "on" : ""} onClick={() => toggleDia(i, wd)}>{lab}</button>
-                ))}
+              <div className="rot-controls">
+                <div className="rot-days">
+                  {DIAS.map((lab, wd) => (
+                    <button type="button" key={wd} className={r.dias.includes(wd) ? "on" : ""} onClick={() => toggleDia(i, wd)}>{lab}</button>
+                  ))}
+                </div>
+                <select className="rot-link" title="Vincular a um módulo" value={r.link || ""} onChange={(e) => setRot(i, { link: e.target.value })}>
+                  <option value="">sem vínculo</option>
+                  <option value="treino">↔ Treino</option>
+                  {refeicoesList.map((m) => <option key={m} value={"refeicao:" + m}>↔ {m}</option>)}
+                </select>
               </div>
             </div>
           ))}
