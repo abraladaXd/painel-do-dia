@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { keyOf, pad, weekdayDay, todayKey } from "@/lib/date";
-import { blankDay } from "@/lib/model";
+import { blankDay, sonoDur } from "@/lib/model";
 
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
@@ -36,7 +36,7 @@ export default function SemanaView({ state, getRange, goToDay }) {
       </div>
       <table>
         <thead>
-          <tr><th>Dia</th><th>Tarefas</th><th>Água</th><th>Refeições</th><th>Treino</th><th>Peso</th><th>Trabalho</th></tr>
+          <tr><th>Dia</th><th>Tarefas</th><th>Água</th><th>Sono</th><th>Refeições</th><th>Treino</th><th>Peso</th><th>Trabalho</th></tr>
         </thead>
         <tbody>
           {keys.map((k) => {
@@ -48,11 +48,15 @@ export default function SemanaView({ state, getRange, goToDay }) {
             const rC = cfg.refeicoes.filter((r) => d.refeicoes && d.refeicoes[r]).length;
             const secs = d.trabalho?.segundos || 0;
             const h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60);
+            const sSecs = sonoDur(d.sono?.deitou, d.sono?.acordou);
+            const sonoH = sSecs != null ? sSecs / 3600 : null;
+            const qual = d.sono?.qualidade || 0;
             return (
               <tr key={k}>
                 <td className={`dcol ${isHoje ? "hoje" : ""}`} onClick={() => goToDay(k)}><b>{isHoje ? "Hoje" : weekdayDay(k)}</b></td>
                 <td>{total ? `${feitas}/${total}` : "—"}</td>
                 <td>{(d.agua || 0).toFixed(1)}L<div className="wbar"><i style={{ width: `${aguaPct * 100}%`, background: "var(--agua)" }} /></div></td>
+                <td>{sonoH != null ? `${sonoH.toFixed(1)}h` : "—"}{qual ? <div className="qmini">{"★".repeat(qual)}</div> : null}</td>
                 <td>{rC}/{cfg.refeicoes.length}</td>
                 <td>{d.treino?.feito ? <><span className="tick">✓</span> {d.treino.tipo.split("/")[0]}</> : <span className="cross">✕</span>}</td>
                 <td>{d.peso != null ? `${d.peso}kg` : "—"}</td>

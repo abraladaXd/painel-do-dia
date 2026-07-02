@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { pad, fmtHMS, todayKey } from "@/lib/date";
+import { sonoDur } from "@/lib/model";
 
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 const esc = (s) => s;
@@ -254,11 +255,56 @@ function Trabalho({ state, dispatch, liveSeconds }) {
   );
 }
 
+function Sono({ state, dispatch }) {
+  const { day, dayKey } = state;
+  const s = day.sono || { deitou: null, acordou: null, qualidade: 0 };
+  const dur = sonoDur(s.deitou, s.acordou);
+  const hm = (iso) => (iso ? `${pad(new Date(iso).getHours())}:${pad(new Date(iso).getMinutes())}` : "");
+  const durTxt = dur != null ? `${Math.floor(dur / 3600)}h ${pad(Math.floor((dur % 3600) / 60))}min` : "—";
+  const setTime = (field, val) => {
+    if (!val) return;
+    dispatch({ type: "SONO_SET_TIME", field, iso: new Date(`${dayKey}T${val}`).toISOString() });
+  };
+
+  return (
+    <section className="card">
+      <div className="card-head">
+        <h2><span className="dot" style={{ background: "var(--plan)" }} />Sono</h2>
+        <span className="meta">{dur != null ? `${(dur / 3600).toFixed(1)}h` : "—"}</span>
+      </div>
+      <div className="sono-read">{durTxt}</div>
+      <div className="sono-times">
+        <div className="sono-slot">
+          <div className="lab">Deitei</div>
+          <input type="time" value={hm(s.deitou)} onChange={(e) => setTime("deitou", e.target.value)} />
+          <button className="mini" title="Agora" onClick={() => dispatch({ type: "SONO_DEITAR", iso: new Date().toISOString() })}>agora</button>
+        </div>
+        <div className="sono-slot">
+          <div className="lab">Acordei</div>
+          <input type="time" value={hm(s.acordou)} onChange={(e) => setTime("acordou", e.target.value)} />
+          <button className="mini" title="Agora" onClick={() => dispatch({ type: "SONO_ACORDAR", iso: new Date().toISOString() })}>agora</button>
+        </div>
+      </div>
+      <div className="sono-qual">
+        <span className="lab">Qualidade</span>
+        <div className="stars">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button key={n} className={`star ${s.qualidade >= n ? "on" : ""}`}
+              onClick={() => dispatch({ type: "SONO_QUAL", value: s.qualidade === n ? 0 : n })}>★</button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function DiaView({ state, dispatch, now, liveSeconds }) {
   const { day, cfg } = state;
   const feitas = day.agenda.filter((s) => s.done).length;
   const rC = cfg.refeicoes.filter((r) => day.refeicoes[r]).length;
   const h = Math.floor(liveSeconds / 3600), m = Math.floor((liveSeconds % 3600) / 60);
+  const sonoSecs = sonoDur(day.sono?.deitou, day.sono?.acordou);
+  const sono = sonoSecs != null ? sonoSecs / 3600 : null;
 
   return (
     <div>
@@ -266,6 +312,7 @@ export default function DiaView({ state, dispatch, now, liveSeconds }) {
         <Agenda state={state} dispatch={dispatch} />
         <Agua state={state} dispatch={dispatch} />
         <Alimentacao state={state} dispatch={dispatch} />
+        <Sono state={state} dispatch={dispatch} />
         <Treino state={state} dispatch={dispatch} now={now} />
         <Peso state={state} dispatch={dispatch} />
         <Trabalho state={state} dispatch={dispatch} liveSeconds={liveSeconds} />
@@ -273,6 +320,7 @@ export default function DiaView({ state, dispatch, now, liveSeconds }) {
       <div className="resumo">
         <div className="stat"><div className="k">Tarefas</div><div className="v">{feitas}<small>/{day.agenda.length}</small></div></div>
         <div className="stat"><div className="k">Água</div><div className="v">{day.agua.toFixed(1)}<small>L</small></div></div>
+        <div className="stat"><div className="k">Sono</div><div className="v">{sono != null ? sono.toFixed(1) : "—"}<small>h</small></div></div>
         <div className="stat"><div className="k">Treino</div><div className="v">{day.treino.calorias || 0}<small>kcal</small></div></div>
         <div className="stat"><div className="k">Peso</div><div className="v">{(day.peso ?? cfg.ultimoPeso) ?? "—"}<small>kg</small></div></div>
         <div className="stat"><div className="k">Trabalho</div><div className="v">{h}:{pad(m)}</div></div>

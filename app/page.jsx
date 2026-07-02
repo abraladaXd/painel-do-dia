@@ -19,8 +19,8 @@ function Login() {
   return (
     <div className="login">
       <div className="login-card">
-        <div className="eyebrow"><span className="sync on" /><span>painel do dia</span></div>
-        <h1 className="title">Painel do dia<span>.</span></h1>
+        <div className="eyebrow"><span className="sync on" /><span>mega brain</span></div>
+        <h1 className="title">Mega Brain<span>.</span></h1>
         <p className="login-sub">Entre com o Google para sincronizar suas coisas em qualquer dispositivo.</p>
         <button className="btn google" onClick={go} disabled={busy}>
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
@@ -65,7 +65,7 @@ function Header({ state, now }) {
           <span className="wd">{weekdayLong(d)}</span>
           <span className="dm">{dayMonth(d)}</span>
         </div>
-        <h1 className="title">Painel do dia<span>.</span></h1>
+        <h1 className="title">Mega Brain<span>.</span></h1>
       </div>
       <div className="clock">
         <div className="time">{pad(d.getHours())}:{pad(d.getMinutes())}<em>{pad(d.getSeconds())}</em></div>

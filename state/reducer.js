@@ -29,6 +29,9 @@ function applyTaskLink(day, link, on) {
     const name = link.slice("refeicao:".length);
     return { ...day, refeicoes: { ...day.refeicoes, [name]: on } };
   }
+  const sono = day.sono || { deitou: null, acordou: null, qualidade: 0 };
+  if (link === "sono:deitar") return { ...day, sono: { ...sono, deitou: on ? new Date().toISOString() : null } };
+  if (link === "sono:acordar") return { ...day, sono: { ...sono, acordou: on ? new Date().toISOString() : null } };
   return day;
 }
 // mexer no módulo reflete de volta nas tarefas vinculadas a ele
@@ -135,6 +138,28 @@ export function reducer(state, action) {
     case "TREINO_END":
       return commit(state, "treino finalizado",
         { ...day, treino: { ...day.treino, fim: action.iso } });
+
+    // ---- sono ----
+    case "SONO_DEITAR": {
+      const sono = day.sono || { deitou: null, acordou: null, qualidade: 0 };
+      let d = { ...day, sono: { ...sono, deitou: action.iso } };
+      d = markLinkedTasks(d, "sono:deitar", true);
+      return commit(state, "sono: deitou", d);
+    }
+    case "SONO_ACORDAR": {
+      const sono = day.sono || { deitou: null, acordou: null, qualidade: 0 };
+      let d = { ...day, sono: { ...sono, acordou: action.iso } };
+      d = markLinkedTasks(d, "sono:acordar", true);
+      return commit(state, "sono: acordou", d);
+    }
+    case "SONO_SET_TIME": {
+      const sono = day.sono || { deitou: null, acordou: null, qualidade: 0 };
+      return commit(state, "sono ajustado", { ...day, sono: { ...sono, [action.field]: action.iso } });
+    }
+    case "SONO_QUAL": {
+      const sono = day.sono || { deitou: null, acordou: null, qualidade: 0 };
+      return commit(state, "qualidade do sono", { ...day, sono: { ...sono, qualidade: action.value } });
+    }
 
     // ---- peso ----
     case "PESO": {

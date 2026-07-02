@@ -81,6 +81,8 @@ function RotinasBoard({ rotinas, setRotinas, refeicoesList }) {
             <select className="rot-link" value={draft.link || ""} onChange={(e) => patch({ link: e.target.value })}>
               <option value="">sem vínculo</option>
               <option value="treino">↔ Treino</option>
+              <option value="sono:deitar">↔ Sono (deitar)</option>
+              <option value="sono:acordar">↔ Sono (acordar)</option>
               {refeicoesList.map((m) => <option key={m} value={"refeicao:" + m}>↔ {m}</option>)}
             </select>
             <div className="redit-actions">

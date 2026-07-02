@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Painel do Dia",
-  description: "Organização diária: obrigações, água, alimentação, treino e trabalho.",
+  title: "Mega Brain",
+  description: "Painel diário: obrigações, sono, água, alimentação, treino e trabalho.",
 };
 
 export const viewport = {

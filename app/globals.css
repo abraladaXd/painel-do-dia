@@ -216,6 +216,20 @@ h1.title span{color:var(--muted)}
 .peso-bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;width:100%;margin-top:8px}
 .peso-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--peso),var(--plan));transition:width .5s}
 
+/* sono */
+.sono-read{font-family:var(--mono);font-size:34px;font-weight:700;color:var(--plan);text-align:center;margin:2px 0 14px}
+.sono-times{display:flex;gap:10px;margin-bottom:16px}
+.sono-slot{flex:1;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;text-align:center}
+.sono-slot .lab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.sono-slot input[type=time]{width:100%;text-align:center;margin-bottom:7px}
+.sono-slot .mini{width:100%;font-family:var(--disp);font-weight:600;font-size:12px;color:var(--muted)}
+.sono-slot .mini:hover{border-color:var(--plan);color:var(--plan)}
+.sono-qual{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sono-qual .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.stars{display:flex;gap:5px}
+.star{background:none;border:none;color:var(--muted-2);font-size:21px;line-height:1;cursor:pointer;transition:.12s}
+.star:hover,.star.on{color:var(--plan)}
+
 /* trabalho */
 .trab-read{font-family:var(--mono);font-size:38px;font-weight:700;letter-spacing:.03em;color:var(--trab);text-align:center;margin:4px 0 6px;cursor:pointer}
 .trab-read:hover{filter:brightness(1.15)}
@@ -226,9 +240,7 @@ h1.title span{color:var(--muted)}
 .trab-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--trab),var(--agua));transition:width .5s}
 .trab-ctrl{display:flex;gap:8px}.trab-ctrl .btn{flex:1}
 
-.resumo{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:20px}
-@media(max-width:900px){.resumo{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:520px){.resumo{grid-template-columns:repeat(2,1fr)}}
+.resumo{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:20px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:14px}
 .stat .k{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 .stat .v{font-family:var(--mono);font-weight:700;font-size:20px}.stat .v small{font-size:12px;color:var(--muted);font-weight:400}
@@ -236,9 +248,10 @@ h1.title span{color:var(--muted)}
 .week table{width:100%;border-collapse:collapse;font-size:13.5px}
 @media(max-width:600px){
   .week{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px}
-  .week table{min-width:520px}
+  .week table{min-width:600px}
   .week th,.week td{padding:10px 6px}
 }
+.qmini{color:var(--plan);font-size:9px;letter-spacing:1px;margin-top:2px}
 .week th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
 .week td{padding:12px 8px;border-bottom:1px dashed var(--line);font-family:var(--mono)}
 .week tr:hover td{background:var(--surface-2)}
