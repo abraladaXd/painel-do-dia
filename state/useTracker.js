@@ -1,7 +1,9 @@
 "use client";
 import { useReducer, useEffect, useRef, useState, useCallback } from "react";
 import { reducer, initialState } from "@/state/reducer";
-import { initBackend } from "@/lib/backend";
+import { makeLocalBackend, makeFirebaseBackend } from "@/lib/backend";
+import { firebaseEnabled } from "@/lib/firebase";
+import { watchAuth } from "@/lib/auth";
 import { blankDay, ensureIds, seedAgenda, DEFAULTS } from "@/lib/model";
 import { todayKey } from "@/lib/date";
 
@@ -20,22 +22,47 @@ export function useTracker() {
     return () => clearInterval(i);
   }, []);
 
-  // boot: backend + config + dia de hoje
+  // boot: carrega config + dia de hoje de um backend e sinaliza pronto
+  const bootFrom = async (b, user, alive) => {
+    if (!alive()) return;
+    backendRef.current = b;
+    const cfg = { ...DEFAULTS, ...((await b.getConfig()) || {}) };
+    let day = await b.getDay(todayKey());
+    if (!day) {
+      day = blankDay();
+      day.agenda = seedAgenda(todayKey(), cfg.rotinas);
+    }
+    if (!alive()) return;
+    dispatch({ type: "INIT", mode: b.mode, user, cfg, dayKey: todayKey(), day: ensureIds(day) });
+  };
+
+  // boot: modo local direto, ou observa o login do Firebase (tela de login/sessao)
   useEffect(() => {
     let alive = true;
+    const isAlive = () => alive;
+    let unsub = () => {};
     (async () => {
-      const b = await initBackend();
-      if (!alive) return;
-      backendRef.current = b;
-      const cfg = { ...DEFAULTS, ...((await b.getConfig()) || {}) };
-      let day = await b.getDay(todayKey());
-      if (!day) {
-        day = blankDay();
-        day.agenda = seedAgenda(todayKey(), cfg.rotinas);
+      if (!firebaseEnabled) {
+        await bootFrom(makeLocalBackend(), null, isAlive);
+        return;
       }
-      dispatch({ type: "INIT", mode: b.mode, cfg, dayKey: todayKey(), day: ensureIds(day) });
+      unsub = await watchAuth(async (user) => {
+        if (!alive) return;
+        if (!user) {
+          backendRef.current = null;
+          dispatch({ type: "NEEDS_LOGIN" });
+          return;
+        }
+        try {
+          await bootFrom(await makeFirebaseBackend(user.uid), user, isAlive);
+        } catch (e) {
+          console.warn("Firestore indisponivel, modo local:", e);
+          await bootFrom(makeLocalBackend(), user, isAlive);
+        }
+      });
     })();
-    return () => { alive = false; };
+    return () => { alive = false; unsub && unsub(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // persistencia do dia (debounce 350ms)

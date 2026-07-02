@@ -1,10 +1,54 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useTracker } from "@/state/useTracker";
+import { signInGoogle, signOutUser } from "@/lib/auth";
 import { pad, fmtDur, weekdayLong, dayMonth, shortLabel, keyOf, parseKey, todayKey } from "@/lib/date";
 import DiaView from "@/components/DiaView";
 import SemanaView from "@/components/SemanaView";
 import ConfigView from "@/components/ConfigView";
+
+function Login() {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const go = async () => {
+    setBusy(true); setErr("");
+    try { await signInGoogle(); } // no celular redireciona; no desktop abre popup
+    catch (e) { setBusy(false); setErr(e?.message || "Não foi possível entrar."); }
+  };
+  return (
+    <div className="login">
+      <div className="login-card">
+        <div className="eyebrow"><span className="sync on" /><span>painel do dia</span></div>
+        <h1 className="title">Painel do dia<span>.</span></h1>
+        <p className="login-sub">Entre com o Google para sincronizar suas coisas em qualquer dispositivo.</p>
+        <button className="btn google" onClick={go} disabled={busy}>
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.6 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.3 17.7 9.5 24 9.5z" />
+            <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-3.9 6.9-9.7 6.9-17.4z" />
+            <path fill="#FBBC05" d="M10.5 28.6c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6l-7.9-6.2C.9 16.5 0 20.1 0 24s.9 7.5 2.6 10.8l7.9-6.2z" />
+            <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.3 0-11.6-3.8-13.5-9.1l-7.9 6.2C6.5 42.6 14.6 48 24 48z" />
+          </svg>
+          {busy ? "abrindo…" : "Entrar com Google"}
+        </button>
+        {err && <p className="login-err">{err}</p>}
+        <p className="login-fine">Cada conta tem seus próprios dados. Você fica conectado neste aparelho.</p>
+      </div>
+    </div>
+  );
+}
+
+function UserBar({ user }) {
+  return (
+    <div className="userbar">
+      {user.photo
+        // eslint-disable-next-line @next/next/no-img-element
+        ? <img src={user.photo} alt="" className="ub-av" referrerPolicy="no-referrer" />
+        : <span className="ub-av ph">{(user.name || user.email || "?").charAt(0).toUpperCase()}</span>}
+      <span className="ub-name">{user.name || user.email}</span>
+      <button className="ub-out" onClick={() => signOutUser()}>sair</button>
+    </div>
+  );
+}
 
 function Header({ state, now }) {
   const d = new Date(now);
@@ -76,6 +120,7 @@ export default function Page() {
   const { state, dispatch, now, liveSeconds, loadDay, getRange } = useTracker();
   const [tab, setTab] = useState("hoje");
 
+  if (state.needsLogin) return <Login />;
   if (!state.ready) return <div className="boot">carregando painel…</div>;
 
   const isHoje = state.dayKey === todayKey();
@@ -87,6 +132,7 @@ export default function Page() {
 
   return (
     <div className="wrap">
+      {state.user && <UserBar user={state.user} />}
       <Header state={state} now={now} />
 
       <div className="bar">

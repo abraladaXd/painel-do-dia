@@ -3,6 +3,8 @@ import { todayKey, parseKey } from "@/lib/date";
 
 export const initialState = () => ({
   ready: false,
+  needsLogin: false,   // true = mostrar tela de login (Firebase ligado, sem sessao)
+  user: null,          // { uid, name, email, photo } quando logado
   mode: "local",
   cfg: { ...DEFAULTS },
   dayKey: todayKey(),
@@ -34,8 +36,10 @@ export function reducer(state, action) {
   switch (action.type) {
     // ---- ciclo de vida ----
     case "INIT":
-      return { ...state, ready: true, mode: action.mode, cfg: action.cfg,
+      return { ...state, ready: true, needsLogin: false, user: action.user || null, mode: action.mode, cfg: action.cfg,
         dayKey: action.dayKey, day: ensureIds(action.day), past: [], future: [], timer: { running: false, startedAt: null } };
+    case "NEEDS_LOGIN":
+      return { ...state, ready: false, needsLogin: true, user: null };
     case "LOAD_DAY":
       return { ...state, dayKey: action.dayKey, day: ensureIds(action.day),
         past: [], future: [], timer: { running: false, startedAt: null }, editing: null, trabEditing: false };
