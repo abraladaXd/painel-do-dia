@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import { pad, fmtHMS, todayKey } from "@/lib/date";
 import { sonoDur } from "@/lib/model";
+import { scoreDay, scoreColor } from "@/lib/score";
 
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 const esc = (s) => s;
@@ -298,6 +299,30 @@ function Sono({ state, dispatch }) {
   );
 }
 
+function Produtividade({ state }) {
+  const { score, parts } = scoreDay(state.day, state.cfg);
+  const col = scoreColor(score);
+  return (
+    <section className="card">
+      <div className="card-head">
+        <h2><span className="dot" style={{ background: "var(--treino)" }} />Produtividade</h2>
+        <span className="meta">score do dia</span>
+      </div>
+      <div className="score-big" style={{ color: col }}>{score}<small>/100</small></div>
+      <div className="score-bar"><i style={{ width: `${score}%`, background: col }} /></div>
+      <div className="score-parts">
+        {parts.map((p) => (
+          <div key={p.key} className={`score-row ${p.included ? "" : "off"}`}>
+            <span className="sp-lab">{p.label}</span>
+            <div className="sp-bar"><i style={{ width: `${p.included ? Math.round(p.value * 100) : 0}%` }} /></div>
+            <span className="sp-val">{p.included ? `${Math.round(p.value * 100)}%` : "—"}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function DiaView({ state, dispatch, now, liveSeconds }) {
   const { day, cfg } = state;
   const feitas = day.agenda.filter((s) => s.done).length;
@@ -309,6 +334,7 @@ export default function DiaView({ state, dispatch, now, liveSeconds }) {
   return (
     <div>
       <div className="cards">
+        <Produtividade state={state} />
         <Agenda state={state} dispatch={dispatch} />
         <Agua state={state} dispatch={dispatch} />
         <Alimentacao state={state} dispatch={dispatch} />

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { keyOf, pad, weekdayDay, todayKey } from "@/lib/date";
 import { blankDay, sonoDur } from "@/lib/model";
+import { scoreDay, scoreColor } from "@/lib/score";
 
 const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
@@ -27,16 +28,29 @@ export default function SemanaView({ state, getRange, goToDay }) {
 
   const merged = { ...data, [dayKey]: day };
   const totalTrab = keys.reduce((a, k) => a + ((merged[k]?.trabalho?.segundos) || 0), 0);
+  const scores = keys.map((k) => scoreDay(merged[k] || blankDay(), cfg).score);
+  const avgScore = Math.round(scores.reduce((a, s) => a + s, 0) / (scores.length || 1));
 
   return (
     <section className="card week">
       <div className="card-head">
         <h2><span className="dot" style={{ background: "var(--plan)" }} />Últimos 7 dias</h2>
-        <span className="meta">{(totalTrab / 3600).toFixed(1)}h trabalhadas</span>
+        <span className="meta">score médio <b style={{ color: scoreColor(avgScore) }}>{avgScore}</b> · {(totalTrab / 3600).toFixed(1)}h trab.</span>
       </div>
+
+      <div className="spark">
+        {keys.map((k, i) => (
+          <div key={k} className={`spark-col ${k === todayKey() ? "hoje" : ""}`} onClick={() => goToDay(k)}>
+            <div className="spark-track"><div className="spark-bar" style={{ height: `${Math.max(scores[i], 3)}%`, background: scoreColor(scores[i]) }} /></div>
+            <span className="spark-n">{scores[i]}</span>
+            <span className="spark-d">{k === todayKey() ? "hoje" : weekdayDay(k).split(" ")[0]}</span>
+          </div>
+        ))}
+      </div>
+
       <table>
         <thead>
-          <tr><th>Dia</th><th>Tarefas</th><th>Água</th><th>Sono</th><th>Refeições</th><th>Treino</th><th>Peso</th><th>Trabalho</th></tr>
+          <tr><th>Dia</th><th>Score</th><th>Tarefas</th><th>Água</th><th>Sono</th><th>Refeições</th><th>Treino</th><th>Peso</th><th>Trabalho</th></tr>
         </thead>
         <tbody>
           {keys.map((k) => {
@@ -51,9 +65,11 @@ export default function SemanaView({ state, getRange, goToDay }) {
             const sSecs = sonoDur(d.sono?.deitou, d.sono?.acordou);
             const sonoH = sSecs != null ? sSecs / 3600 : null;
             const qual = d.sono?.qualidade || 0;
+            const sc = scoreDay(d, cfg).score;
             return (
               <tr key={k}>
                 <td className={`dcol ${isHoje ? "hoje" : ""}`} onClick={() => goToDay(k)}><b>{isHoje ? "Hoje" : weekdayDay(k)}</b></td>
+                <td><b style={{ color: scoreColor(sc) }}>{sc}</b></td>
                 <td>{total ? `${feitas}/${total}` : "—"}</td>
                 <td>{(d.agua || 0).toFixed(1)}L<div className="wbar"><i style={{ width: `${aguaPct * 100}%`, background: "var(--agua)" }} /></div></td>
                 <td>{sonoH != null ? `${sonoH.toFixed(1)}h` : "—"}{qual ? <div className="qmini">{"★".repeat(qual)}</div> : null}</td>

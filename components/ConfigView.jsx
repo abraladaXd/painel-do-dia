@@ -103,9 +103,10 @@ export default function ConfigView({ state, dispatch }) {
   const { cfg } = state;
   const [form, setForm] = useState({
     aguaMeta: cfg.aguaMeta, trabMetaH: cfg.trabMetaH, copo: cfg.copo, garrafa: cfg.garrafa,
-    caloriasMeta: cfg.caloriasMeta, pesoMeta: cfg.pesoMeta,
+    caloriasMeta: cfg.caloriasMeta, pesoMeta: cfg.pesoMeta, sonoMeta: cfg.sonoMeta ?? 8,
     refeicoes: cfg.refeicoes.join("\n"), tiposTreino: cfg.tiposTreino.join("\n"),
   });
+  const [pesos, setPesos] = useState({ tarefas: 1, agua: 1, sono: 1.5, treino: 1, trabalho: 1, ...(cfg.pesos || {}) });
   const [rotinas, setRotinas] = useState(
     (cfg.rotinas || []).map((r) => ({ ...r, dias: [...(r.dias || ALL_DAYS)] }))
   );
@@ -122,6 +123,8 @@ export default function ConfigView({ state, dispatch }) {
     garrafa: parseFloat(form.garrafa) || 0.5,
     caloriasMeta: parseInt(form.caloriasMeta) || 400,
     pesoMeta: parseFloat(form.pesoMeta) || 75,
+    sonoMeta: parseFloat(form.sonoMeta) || 8,
+    pesos,
     refeicoes: form.refeicoes.split("\n").map((s) => s.trim()).filter(Boolean),
     tiposTreino: form.tiposTreino.split("\n").map((s) => s.trim()).filter(Boolean),
     rotinas: rotinas
@@ -142,6 +145,7 @@ export default function ConfigView({ state, dispatch }) {
         <div className="field"><label>Garrafa (L)</label><input type="number" step="0.05" value={form.garrafa} onChange={(e) => set("garrafa", e.target.value)} /></div>
         <div className="field"><label>Meta de calorias no treino (kcal)</label><input type="number" value={form.caloriasMeta} onChange={(e) => set("caloriasMeta", e.target.value)} /></div>
         <div className="field"><label>Meta de peso (kg)</label><input type="number" step="0.1" value={form.pesoMeta} onChange={(e) => set("pesoMeta", e.target.value)} /></div>
+        <div className="field"><label>Meta de sono (h)</label><input type="number" step="0.5" value={form.sonoMeta} onChange={(e) => set("sonoMeta", e.target.value)} /></div>
         <div className="field" style={{ gridColumn: "1/-1" }}><label>Refeições (uma por linha)</label><textarea value={form.refeicoes} onChange={(e) => set("refeicoes", e.target.value)} /></div>
         <div className="field" style={{ gridColumn: "1/-1" }}><label>Tipos de treino (uma por linha)</label><textarea value={form.tiposTreino} onChange={(e) => set("tiposTreino", e.target.value)} /></div>
       </div>
@@ -155,6 +159,23 @@ export default function ConfigView({ state, dispatch }) {
           <div className="empty">Nenhuma rotina ainda. Use o + em um dia para adicionar uma tarefa que se repete.</div>
         )}
         <RotinasBoard rotinas={rotinas} setRotinas={setRotinas} refeicoesList={refeicoesList} />
+      </div>
+
+      <div className="rotinas-block">
+        <div className="rotinas-head">
+          <label>Pesos da produtividade</label>
+          <span className="rotinas-sub">quanto cada dimensão vale no score do dia (0 = ignora)</span>
+        </div>
+        <div className="pesos">
+          {[["tarefas", "Tarefas"], ["agua", "Água"], ["sono", "Sono"], ["treino", "Treino"], ["trabalho", "Trabalho"]].map(([k, lab]) => (
+            <div className="peso-row" key={k}>
+              <label>{lab}</label>
+              <input type="range" min="0" max="3" step="0.5" value={pesos[k]}
+                onChange={(e) => setPesos((p) => ({ ...p, [k]: parseFloat(e.target.value) }))} />
+              <span className="pw">{Number(pesos[k]).toFixed(1)}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="cfg-actions">

@@ -248,10 +248,39 @@ h1.title span{color:var(--muted)}
 .week table{width:100%;border-collapse:collapse;font-size:13.5px}
 @media(max-width:600px){
   .week{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px}
-  .week table{min-width:600px}
+  .week table{min-width:720px}
   .week th,.week td{padding:10px 6px}
 }
 .qmini{color:var(--plan);font-size:9px;letter-spacing:1px;margin-top:2px}
+
+/* sparkline de score na Semana */
+.spark{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:20px}
+.spark-col{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.spark-track{width:100%;height:80px;display:flex;align-items:flex-end;background:var(--surface-2);border-radius:6px;overflow:hidden;padding:3px}
+.spark-bar{width:100%;border-radius:4px;transition:height .5s}
+.spark-n{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text)}
+.spark-d{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:capitalize}
+.spark-col.hoje .spark-d{color:var(--agua)}
+
+/* card de produtividade */
+.score-big{font-family:var(--mono);font-weight:700;font-size:46px;line-height:1;text-align:center;margin:4px 0 12px}
+.score-big small{font-size:16px;color:var(--muted);font-weight:400}
+.score-bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-bottom:16px}
+.score-bar i{display:block;height:100%;transition:width .5s}
+.score-parts{display:flex;flex-direction:column;gap:9px}
+.score-row{display:grid;grid-template-columns:74px 1fr 38px;align-items:center;gap:10px}
+.score-row.off{opacity:.4}
+.sp-lab{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.sp-bar{height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.sp-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--plan),var(--agua));transition:width .5s}
+.sp-val{font-family:var(--mono);font-size:11.5px;color:var(--text);text-align:right}
+
+/* pesos do score */
+.pesos{display:flex;flex-direction:column;gap:12px}
+.peso-row{display:grid;grid-template-columns:80px 1fr 30px;align-items:center;gap:12px}
+.peso-row label{font-family:var(--mono);font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0}
+.peso-row input[type=range]{width:100%;accent-color:var(--plan)}
+.peso-row .pw{font-family:var(--mono);font-size:12px;color:var(--text);text-align:right}
 .week th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 8px;border-bottom:1px solid var(--line)}
 .week td{padding:12px 8px;border-bottom:1px dashed var(--line);font-family:var(--mono)}
 .week tr:hover td{background:var(--surface-2)}

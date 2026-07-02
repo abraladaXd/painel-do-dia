@@ -23,13 +23,15 @@ Cada rotina/tarefa tem um **vínculo** (`link`) com um módulo, com sync **bidir
 - Vínculos `sono:deitar` / `sono:acordar` nas rotinas dormir/acordar.
 - Coluna Sono na Semana + stat no resumo.
 
-## 📝 Fase 3 — Notas
-- **Um bloco de notas geral, fixo/persistente** (não por dia): `users/{uid}/meta/notas`.
-- Texto livre, salva com debounce, sempre acessível.
+## ✅ Fase 3 — Notas (feito)
+- Aba **Notas**: bloco geral fixo/persistente (`users/{uid}/meta/notas`), autosave.
 
-## 📊 Fase 4 — Produtividade
-- **Score diário 0–100** combinando: tarefas feitas, treino, % de água, sono, horas trabalhadas — com **pesos ajustáveis** na Config.
-- Aba **Semana vira análise**: evolução do score, médias e correlações simples (ex.: "dormiu mais → treinou mais").
+## ✅ Fase 4 — Produtividade (feito)
+- **Score diário 0–100** (média ponderada de tarefas, água, sono, treino, trabalho) com **pesos ajustáveis** na Config. Card de Produtividade com breakdown por dimensão.
+- Semana: coluna Score, **sparkline** de tendência dos 7 dias e média.
+
+## ✅ PWA (feito)
+- Instalável na tela inicial (manifest, ícone cérebro neon, service worker offline). `display: standalone`.
 
 ---
 
