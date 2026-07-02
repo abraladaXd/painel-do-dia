@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useTracker } from "@/state/useTracker";
-import { signInGoogle, signOutUser } from "@/lib/auth";
+import { signInGoogle, signOutUser, preloadAuth } from "@/lib/auth";
 import { pad, fmtDur, weekdayLong, dayMonth, shortLabel, keyOf, parseKey, todayKey } from "@/lib/date";
 import DiaView from "@/components/DiaView";
 import SemanaView from "@/components/SemanaView";
@@ -10,6 +10,7 @@ import ConfigView from "@/components/ConfigView";
 function Login() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  useEffect(() => { preloadAuth(); }, []); // deixa o SDK pronto p/ o popup abrir no toque
   const go = async () => {
     setBusy(true); setErr("");
     try { await signInGoogle(); } // no celular redireciona; no desktop abre popup
