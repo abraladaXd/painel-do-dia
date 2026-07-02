@@ -12,6 +12,7 @@ export function useTracker() {
   const backendRef = useRef(null);
   const stateRef = useRef(state);
   const saveT = useRef(null);
+  const notasT = useRef(null);
   const [now, setNow] = useState(() => Date.now());
 
   stateRef.current = state;
@@ -32,8 +33,9 @@ export function useTracker() {
       day = blankDay();
       day.agenda = seedAgenda(todayKey(), cfg.rotinas);
     }
+    const notas = (await b.getNotas?.()) || "";
     if (!alive()) return;
-    dispatch({ type: "INIT", mode: b.mode, user, cfg, dayKey: todayKey(), day: ensureIds(day) });
+    dispatch({ type: "INIT", mode: b.mode, user, cfg, notas, dayKey: todayKey(), day: ensureIds(day) });
   };
 
   // boot: modo local direto, ou observa o login do Firebase (tela de login/sessao)
@@ -79,6 +81,15 @@ export function useTracker() {
     if (!state.ready || !backendRef.current) return;
     backendRef.current.setConfig(state.cfg);
   }, [state.cfg, state.ready]);
+
+  // persistencia das notas (debounce 500ms)
+  useEffect(() => {
+    if (!state.ready || !backendRef.current) return;
+    clearTimeout(notasT.current);
+    notasT.current = setTimeout(() => {
+      backendRef.current.setNotas?.(state.notas);
+    }, 500);
+  }, [state.notas, state.ready]);
 
   // commit do timer ao fechar/ocultar a aba
   useEffect(() => {

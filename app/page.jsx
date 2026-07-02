@@ -6,6 +6,7 @@ import { pad, fmtDur, weekdayLong, dayMonth, shortLabel, keyOf, parseKey, todayK
 import DiaView from "@/components/DiaView";
 import SemanaView from "@/components/SemanaView";
 import ConfigView from "@/components/ConfigView";
+import NotasView from "@/components/NotasView";
 
 function Login() {
   const [busy, setBusy] = useState(false);
@@ -140,6 +141,7 @@ export default function Page() {
         <div className="tabs">
           <button className={tab === "hoje" ? "on" : ""} onClick={() => setTab("hoje")}>Dia</button>
           <button className={tab === "semana" ? "on" : ""} onClick={() => setTab("semana")}>Semana</button>
+          <button className={tab === "notas" ? "on" : ""} onClick={() => setTab("notas")}>Notas</button>
           <button className={tab === "config" ? "on" : ""} onClick={() => setTab("config")}>Config</button>
         </div>
         {tab === "hoje" && (
@@ -153,6 +155,7 @@ export default function Page() {
 
       {tab === "hoje" && <><Focus state={state} now={now} /><DiaView state={state} dispatch={dispatch} now={now} liveSeconds={liveSeconds} /></>}
       {tab === "semana" && <SemanaView state={state} getRange={getRange} goToDay={(k) => { setTab("hoje"); loadDay(k); }} />}
+      {tab === "notas" && <NotasView notas={state.notas} dispatch={dispatch} />}
       {tab === "config" && <ConfigView state={state} dispatch={dispatch} />}
 
       <div className="foot">{state.mode === "firebase" ? "sincronizado no Firestore" : "modo local — configure o Firebase para persistir"}</div>

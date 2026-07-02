@@ -7,6 +7,7 @@ export const initialState = () => ({
   user: null,          // { uid, name, email, photo } quando logado
   mode: "local",
   cfg: { ...DEFAULTS },
+  notas: "",           // bloco de notas geral (fixo, fora do dia)
   dayKey: todayKey(),
   day: blankDay(),
   timer: { running: false, startedAt: null },
@@ -61,9 +62,11 @@ export function reducer(state, action) {
     // ---- ciclo de vida ----
     case "INIT":
       return { ...state, ready: true, needsLogin: false, user: action.user || null, mode: action.mode, cfg: action.cfg,
-        dayKey: action.dayKey, day: ensureIds(action.day), past: [], future: [], timer: { running: false, startedAt: null } };
+        notas: action.notas || "", dayKey: action.dayKey, day: ensureIds(action.day), past: [], future: [], timer: { running: false, startedAt: null } };
     case "NEEDS_LOGIN":
       return { ...state, ready: false, needsLogin: true, user: null };
+    case "SET_NOTAS":
+      return { ...state, notas: action.value };
     case "LOAD_DAY":
       return { ...state, dayKey: action.dayKey, day: ensureIds(action.day),
         past: [], future: [], timer: { running: false, startedAt: null }, editing: null, trabEditing: false };
