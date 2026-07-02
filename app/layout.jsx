@@ -1,8 +1,20 @@
 import "./globals.css";
+import PWA from "@/components/PWA";
 
 export const metadata = {
   title: "Mega Brain",
   description: "Painel diário: obrigações, sono, água, alimentação, treino e trabalho.",
+  manifest: "/manifest.webmanifest",
+  applicationName: "Mega Brain",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/icons/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Mega Brain",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport = {
@@ -23,7 +35,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>{children}<PWA /></body>
     </html>
   );
 }
