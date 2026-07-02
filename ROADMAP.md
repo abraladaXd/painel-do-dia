@@ -1,4 +1,4 @@
-# Roadmap — Painel do Dia (sistema integrado)
+# Roadmap — Mega Brain (sistema integrado)
 
 > **Princípio:** não são widgets soltos. Tarefas/rotinas são **eventos ligados às dimensões do dia** — marcar num lugar reflete nos outros. O objetivo é um painel completo que ajude de verdade (sono, produtividade, notas), não superficial.
 
@@ -12,18 +12,16 @@ App: Next.js 14 (export estático) · Firebase Hosting `megabrain-51939` → htt
 - Layout **masonry unificado** (`.cards`) — acaba com o espaço vazio.
 - **Rotinas**: tarefas repetidas por horário + dias da semana (aba Config), semeadas em cada novo dia, marcador ↻.
 
-## 🔨 Fase 1 — Integração rotina↔módulos (EM ANDAMENTO)
-Cada rotina/tarefa ganha um **vínculo** (`link`) com um módulo. Sincronização **bidirecional**:
-- `treino` → marcar a tarefa liga o card de Treino; ligar o treino marca a tarefa.
-- `refeicao:<nome>` → marca/desmarca a refeição correspondente.
-- (`sono`, `trabalho` entram nas fases seguintes.)
-- Config: seletor de vínculo por rotina.
-- Arquivos: `lib/model.js` (seedAgenda copia link), `state/reducer.js` (TOGGLE_TASK/TREINO_*/MEAL sincronizam), `components/ConfigView.jsx` (seletor).
+## ✅ Fase 1 — Integração rotina↔módulos (feito)
+Cada rotina/tarefa tem um **vínculo** (`link`) com um módulo, com sync **bidirecional**:
+- `treino`, `sono:deitar`, `sono:acordar`, `refeicao:<nome>` — marcar a tarefa mexe no módulo e vice-versa.
+- Config: seletor de vínculo no editor de rotina.
+- Rotinas viraram **quadro semanal** (7 colunas por dia, bloco clicável → editor).
 
-## 🌙 Fase 2 — Módulo Sono
-- Card dedicado: botões **deitei / acordei** (timestamps), duração calculada, **nota de qualidade 1–5**.
-- Vínculo `sono` nas rotinas dormir/acordar (pré-preenche os horários).
-- Média de horas + tendência de qualidade na aba Semana.
+## ✅ Fase 2 — Módulo Sono (feito)
+- Card: **deitei / acordei** (botão agora ou hora manual), duração (trata virada da meia-noite), **qualidade 1–5**.
+- Vínculos `sono:deitar` / `sono:acordar` nas rotinas dormir/acordar.
+- Coluna Sono na Semana + stat no resumo.
 
 ## 📝 Fase 3 — Notas
 - **Um bloco de notas geral, fixo/persistente** (não por dia): `users/{uid}/meta/notas`.
